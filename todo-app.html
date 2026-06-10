@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Royal Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-dim: #8a6f33;
+    --bg: #0D0D0F;
+    --surface: #13131A;
+    --surface2: #1C1C27;
+    --surface3: #222232;
+    --border: rgba(201,168,76,0.18);
+    --text: #EDE8DC;
+    --text-muted: #7a7460;
+    --red: #c05a5a;
+    --green: #5a9c7a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px 100px;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% -10%, rgba(201,168,76,0.07) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(201,168,76,0.03) 79px, rgba(201,168,76,0.03) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(201,168,76,0.03) 79px, rgba(201,168,76,0.03) 80px);
+  }
+
+  .container {
+    width: 100%;
+    max-width: 680px;
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .crown {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 12px;
+    filter: drop-shadow(0 0 12px rgba(201,168,76,0.6));
+    animation: floatCrown 3s ease-in-out infinite;
+  }
+  @keyframes floatCrown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--gold-light);
+    text-shadow: 0 0 40px rgba(201,168,76,0.25);
+  }
+
+  .subtitle {
+    font-size: 0.78rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 24px auto 0;
+    width: 260px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim));
+  }
+  .divider::after { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+  .divider span { color: var(--gold); font-size: 14px; }
+
+  /* ── Add Task Panel ── */
+  .add-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(201,168,76,0.08);
+  }
+
+  .input-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .task-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 13px 18px;
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .task-input::placeholder { color: var(--text-muted); }
+  .task-input:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.07);
+  }
+
+  .btn-add {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border: none;
+    border-radius: 3px;
+    padding: 13px 22px;
+    color: #0D0D0F;
+    font-family: 'Jost', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px rgba(201,168,76,0.25);
+    white-space: nowrap;
+  }
+  .btn-add:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(201,168,76,0.35); }
+  .btn-add:active { transform: translateY(0); }
+
+  /* ── Filters & Stats ── */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .filters {
+    display: flex;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 4px;
+  }
+
+  .filter-btn {
+    background: none;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .filter-btn:hover { color: var(--text); }
+  .filter-btn.active {
+    background: var(--surface3);
+    color: var(--gold);
+    box-shadow: inset 0 1px 0 rgba(201,168,76,0.15);
+  }
+
+  .stats {
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .stats strong { color: var(--gold); font-weight: 400; }
+
+  /* ── Task List ── */
+  .task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 60px;
+  }
+
+  .task-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: border-color 0.2s, box-shadow 0.2s, opacity 0.2s, transform 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.25s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .task-item::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--gold-dim);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .task-item:hover::before { opacity: 1; }
+  .task-item:hover { border-color: rgba(201,168,76,0.3); box-shadow: 0 2px 16px rgba(0,0,0,0.3); }
+
+  .task-item.completed { opacity: 0.5; }
+  .task-item.completed::before { background: var(--green); opacity: 1; }
+
+  /* Drag states */
+  .task-item.dragging { opacity: 0.4; transform: scale(0.98); }
+  .task-item.drag-over { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold-dim); }
+
+  .drag-handle {
+    color: var(--text-muted);
+    cursor: grab;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px 4px;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .task-item:hover .drag-handle { opacity: 0.8; }
+  .drag-handle:active { cursor: grabbing; }
+
+  /* Checkbox */
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--gold-dim);
+    border-radius: 50%;
+    flex-shrink: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .checkbox:hover { border-color: var(--gold); box-shadow: 0 0 8px rgba(201,168,76,0.2); }
+  .checkbox.checked {
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+    border-color: var(--gold);
+    box-shadow: 0 0 10px rgba(201,168,76,0.3);
+  }
+  .checkbox.checked::after {
+    content: '✓';
+    color: #0D0D0F;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* Task text */
+  .task-text {
+    flex: 1;
+    font-size: 0.93rem;
+    font-weight: 300;
+    letter-spacing: 0.03em;
+    transition: color 0.2s, text-decoration 0.2s;
+    word-break: break-word;
+  }
+  .completed .task-text {
+    text-decoration: line-through;
+    text-decoration-color: var(--gold-dim);
+  }
+
+  .task-edit-input {
+    flex: 1;
+    background: var(--surface3);
+    border: 1px solid var(--gold-dim);
+    border-radius: 3px;
+    padding: 5px 12px;
+    color: var(--text);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.93rem;
+    font-weight: 300;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(201,168,76,0.1);
+  }
+
+  /* Task actions */
+  .task-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+  .task-item:hover .task-actions { opacity: 1; }
+
+  .action-btn {
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 5px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    line-height: 1;
+  }
+  .btn-edit { color: var(--gold-dim); }
+  .btn-edit:hover { background: rgba(201,168,76,0.1); border-color: var(--gold-dim); color: var(--gold); }
+  .btn-save { color: var(--green); }
+  .btn-save:hover { background: rgba(90,156,122,0.12); border-color: var(--green); }
+  .btn-delete { color: var(--text-muted); }
+  .btn-delete:hover { background: rgba(192,90,90,0.1); border-color: var(--red); color: var(--red); }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center;
+    padding: 52px 20px;
+    color: var(--text-muted);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-style: italic;
+    letter-spacing: 0.05em;
+    border: 1px dashed rgba(201,168,76,0.1);
+    border-radius: 4px;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-clear {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 2px;
+    transition: color 0.2s, background 0.2s;
+  }
+  .btn-clear:hover { color: var(--red); background: rgba(192,90,90,0.08); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <span class="crown">♛</span>
+    <h1>Royal Tasks</h1>
+    <p class="subtitle">Your Imperial Decree Board</p>
+    <div class="divider"><span>✦</span></div>
+  </header>
+
+  <div class="add-panel">
+    <div class="input-row">
+      <input class="task-input" id="taskInput" type="text" placeholder="Issue a new royal decree…" maxlength="200" />
+      <button class="btn-add" id="addBtn">+ Decree</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="active">Active</button>
+      <button class="filter-btn" data-filter="completed">Completed</button>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="task-list" id="taskList"></div>
+
+  <div class="footer">
+    <span id="footerNote"></span>
+    <button class="btn-clear" id="clearBtn">Clear Completed</button>
+  </div>
+</div>
+
+<script>
+  // ── State ──────────────────────────────────────────
+  let tasks = JSON.parse(localStorage.getItem('royal_tasks') || '[]');
+  let filter = 'all';
+  let dragSrc = null;
+
+  const taskList = document.getElementById('taskList');
+  const taskInput = document.getElementById('taskInput');
+  const statsEl = document.getElementById('stats');
+  const footerEl = document.getElementById('footerNote');
+
+  // ── Persist ────────────────────────────────────────
+  function save() {
+    localStorage.setItem('royal_tasks', JSON.stringify(tasks));
+  }
+
+  // ── Render ─────────────────────────────────────────
+  function render() {
+    const visible = tasks.filter(t => {
+      if (filter === 'active') return !t.done;
+      if (filter === 'completed') return t.done;
+      return true;
+    });
+
+    taskList.innerHTML = '';
+
+    if (visible.length === 0) {
+      taskList.innerHTML = `<div class="empty-state">The royal agenda is clear, Your Majesty.</div>`;
+    } else {
+      visible.forEach(t => taskList.appendChild(createItem(t)));
+    }
+
+    const total = tasks.length;
+    const done = tasks.filter(t => t.done).length;
+    const active = total - done;
+    statsEl.innerHTML = `<strong>${active}</strong> remaining · <strong>${done}</strong> complete`;
+    footerEl.textContent = `${total} decree${total !== 1 ? 's' : ''} in the realm`;
+  }
+
+  // ── Create DOM item ────────────────────────────────
+  function createItem(task) {
+    const li = document.createElement('div');
+    li.className = 'task-item' + (task.done ? ' completed' : '');
+    li.setAttribute('data-id', task.id);
+    li.setAttribute('draggable', 'true');
+
+    li.innerHTML = `
+      <span class="drag-handle" title="Drag to reorder">⠿</span>
+      <div class="checkbox ${task.done ? 'checked' : ''}" data-toggle="${task.id}"></div>
+      <span class="task-text" data-id="${task.id}">${escHtml(task.text)}</span>
+      <div class="task-actions">
+        <button class="action-btn btn-edit" data-edit="${task.id}" title="Edit">✎</button>
+        <button class="action-btn btn-delete" data-del="${task.id}" title="Delete">✕</button>
+      </div>
+    `;
+
+    // Toggle done
+    li.querySelector('[data-toggle]').addEventListener('click', () => toggleTask(task.id));
+
+    // Edit
+    li.querySelector('[data-edit]').addEventListener('click', () => startEdit(task.id, li));
+
+    // Delete
+    li.querySelector('[data-del]').addEventListener('click', () => deleteTask(task.id));
+
+    // Drag & Drop
+    li.addEventListener('dragstart', e => {
+      dragSrc = task.id;
+      li.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    li.addEventListener('dragend', () => {
+      li.classList.remove('dragging');
+      document.querySelectorAll('.task-item').forEach(el => el.classList.remove('drag-over'));
+    });
+    li.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (dragSrc !== task.id) li.classList.add('drag-over');
+    });
+    li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      li.classList.remove('drag-over');
+      if (dragSrc && dragSrc !== task.id) reorder(dragSrc, task.id);
+    });
+
+    return li;
+  }
+
+  // ── Start inline edit ──────────────────────────────
+  function startEdit(id, li) {
+    const task = tasks.find(t => t.id === id);
+    const textEl = li.querySelector('.task-text');
+    const actionsEl = li.querySelector('.task-actions');
+
+    const input = document.createElement('input');
+    input.className = 'task-edit-input';
+    input.value = task.text;
+    textEl.replaceWith(input);
+    input.focus();
+    input.select();
+
+    // Replace edit btn with save btn
+    actionsEl.innerHTML = `
+      <button class="action-btn btn-save" title="Save">✔</button>
+      <button class="action-btn btn-delete" data-del="${id}" title="Delete">✕</button>
+    `;
+    actionsEl.querySelector('.btn-save').addEventListener('click', () => commitEdit(id, input.value));
+    actionsEl.querySelector('[data-del]').addEventListener('click', () => deleteTask(id));
+
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') commitEdit(id, input.value);
+      if (e.key === 'Escape') render();
+    });
+  }
+
+  function commitEdit(id, value) {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const task = tasks.find(t => t.id === id);
+    task.text = trimmed;
+    save(); render();
+  }
+
+  // ── Actions ────────────────────────────────────────
+  function addTask(text) {
+    if (!text.trim()) return;
+    tasks.unshift({ id: Date.now().toString(), text: text.trim(), done: false });
+    save(); render();
+  }
+
+  function toggleTask(id) {
+    const t = tasks.find(t => t.id === id);
+    t.done = !t.done;
+    save(); render();
+  }
+
+  function deleteTask(id) {
+    tasks = tasks.filter(t => t.id !== id);
+    save(); render();
+  }
+
+  function reorder(srcId, tgtId) {
+    const srcIdx = tasks.findIndex(t => t.id === srcId);
+    const tgtIdx = tasks.findIndex(t => t.id === tgtId);
+    const [removed] = tasks.splice(srcIdx, 1);
+    tasks.splice(tgtIdx, 0, removed);
+    save(); render();
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Events ─────────────────────────────────────────
+  document.getElementById('addBtn').addEventListener('click', () => {
+    addTask(taskInput.value);
+    taskInput.value = '';
+    taskInput.focus();
+  });
+
+  taskInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { addTask(taskInput.value); taskInput.value = ''; }
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filter = btn.dataset.filter;
+      render();
+    });
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    tasks = tasks.filter(t => !t.done);
+    save(); render();
+  });
+
+  // ── Init ───────────────────────────────────────────
+  render();
+</script>
+</body>
+</html>
